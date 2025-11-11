@@ -24,12 +24,14 @@ services:
   #################
   backend:
     build: ./backend  # ./backend 폴더에 있는 Dockerfile을 사용해 이미지를 직접 빌드
-    command: python manage.py runserver 0.0.0.0:8000 # 컨테이너가 시작될 때 실행할 명령어
+    command: python duduk_project/manage.py runserver 0.0.0.0:8000
+    #command: tail -f /dev/null
     volumes:
       - ./backend:/app # 내 컴퓨터의 backend 폴더와 컨테이너의 /app 폴더를 실시간으로 동기화
     ports:
       - "8000:8000"    # 내 컴퓨터의 8000 포트와 컨테이너의 8000 포트를 연결
     environment:
+      - GEMINI_API_KEY=AIzaSyD_20NYIXF348OWx5eQlbVLtphxYUt7Tns
       - POSTGRES_USER=duduk
       - POSTGRES_PASSWORD=duduk_secret
       - POSTGRES_DB=duduk_db
