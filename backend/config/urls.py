@@ -23,5 +23,5 @@ from django.urls import path, include  # <--- include 추가!
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),  # <--- 이 줄을 추가! (api/urls.py와 연결)
+    path('api/', include('finance.urls')),  # <--- 이 줄을 추가! (api/urls.py와 연결)
 ]
