@@ -18,8 +18,9 @@ export default function Home() {
     setAiResponse(''); // 이전 응답 초기화
 
     try {
-      // 3. 백엔드 API 호출 (http://localhost:8000/api/test-coaching/)
-      const response = await fetch('http://localhost:8000/api/test-coaching/');
+      // 3. 백엔드 API 호출 (환경변수 사용)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/test-coaching/';
+      const response = await fetch(apiUrl);
       const data = await response.json();
 
       // 4. AI가 보낸 메시지를 상태 변수에 저장
