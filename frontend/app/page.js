@@ -1,4 +1,9 @@
-'use client'; // Next.js 13+에서 브라우저 기능(useState, fetch)을 쓰려면 필수!
+/**
+ * [파일 역할]
+ * - Next.js 애플리케이션의 메인 페이지(홈) 컴포넌트입니다.
+ * - 사용자가 루트 주소(/)로 접속했을 때 보여지는 화면을 정의합니다.
+ */
+"use client"; // 클라이언트 컴포넌트 선언13+에서 브라우저 기능(useState, fetch)을 쓰려면 필수!
 
 import { useState } from 'react';
 
@@ -19,7 +24,7 @@ export default function Home() {
 
       // 4. AI가 보낸 메시지를 상태 변수에 저장
       setAiResponse(data.message);
-      
+
     } catch (error) {
       console.error('AI 코칭 테스트 중 오류 발생:', error);
       setAiResponse('오류가 발생했습니다. 백엔드 서버 로그를 확인해주세요.');
@@ -32,7 +37,7 @@ export default function Home() {
     <main style={{ padding: '40px', fontFamily: 'sans-serif' }}>
       <h1>Duduk AI 코칭 기능 테스트</h1>
       <p>아래 버튼을 누르면, 백엔드 DB의 데이터를 기반으로 AI가 분석을 시작합니다.</p>
-      
+
       <button onClick={handleTestClick} disabled={isLoading} style={{ padding: '10px 15px', fontSize: '16px' }}>
         {isLoading ? '분석 중...' : 'AI 분석 테스트하기'}
       </button>

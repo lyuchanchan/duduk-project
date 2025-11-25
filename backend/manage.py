@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+[파일 역할]
+- Django 프로젝트의 관리 작업을 수행하는 커맨드라인 유틸리티입니다.
+- 서버 실행, 마이그레이션, 앱 생성 등의 명령어를 처리합니다.
+- 사용법: python manage.py <command> (예: python manage.py runserver)
+"""
 import os
 import sys
 

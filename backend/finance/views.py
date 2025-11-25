@@ -1,4 +1,9 @@
-# backend/api/views.py
+# backend/finance/views.py
+"""
+[파일 역할]
+- 클라이언트(프론트엔드)의 요청을 받아 처리하고 응답을 반환하는 로직을 담당합니다.
+- DB에서 데이터를 조회하거나 조작하고, 결과를 JSON 등으로 변환하여 보냅니다.
+"""
 from django.http import JsonResponse
 from .models import Transaction
 from .ai_utils import get_ai_coaching  # 방금 만든 AI 모듈 임포트

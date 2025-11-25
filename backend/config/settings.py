@@ -10,6 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+"""
+[파일 역할]
+- Django 프로젝트의 핵심 설정 파일입니다.
+- 데이터베이스 설정, 설치된 앱 목록, 보안 키, 언어 및 시간대 설정 등을 관리합니다.
+"""
+
 from pathlib import Path
 import sys
 

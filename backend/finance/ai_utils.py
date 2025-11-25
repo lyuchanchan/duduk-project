@@ -1,4 +1,9 @@
-# backend/api/ai_utils.py
+# backend/finance/ai_utils.py
+"""
+[파일 역할]
+- AI 관련 기능을 별도로 분리하여 모아둔 유틸리티 파일입니다.
+- Google Gemini API 등을 호출하여 지출 내역을 분석하고 코칭 메시지를 생성합니다.
+"""
 import os
 import google.generativeai as genai
 

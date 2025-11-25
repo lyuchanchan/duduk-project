@@ -1,4 +1,8 @@
 # frontend/Dockerfile
+#
+# [파일 역할]
+# - 프론트엔드(Next.js) 서버를 실행하기 위한 Docker 이미지를 생성하는 설계도입니다.
+# - Node.js 환경 설정, 의존성 설치, 소스 코드 복사 등의 작업을 수행합니다.
 
 # 1. 어떤 OS와 언어 환경에서 시작할지 결정 (Node.js 18의 가벼운 버전)
 FROM node:18-alpine
