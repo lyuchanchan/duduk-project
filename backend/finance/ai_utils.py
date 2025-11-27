@@ -35,3 +35,49 @@ def get_ai_coaching(transactions):
 
     except Exception as e:
         return f"AI 분석 중 오류 발생: {str(e)}"
+
+def parse_transaction_with_ai(text):
+    try:
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            return None
+
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.0-flash')
+
+        prompt = f"""
+        당신은 텍스트에서 소비 정보를 추출하는 AI입니다.
+        다음 텍스트를 분석하여 JSON 형식으로 반환해주세요.
+        
+        [입력 텍스트]
+        {text}
+
+        [반환 형식]
+        {{
+            "category": "카테고리 (예: 식비, 교통, 쇼핑, 카페, 기타)",
+            "item": "품목 (예: 아메리카노, 택시비)",
+            "store": "소비처 (예: 스타벅스, 카카오택시)",
+            "amount": 금액(숫자만),
+            "memo": "기타 메모"
+        }}
+        
+        JSON 외에 다른 말은 하지 마세요.
+        """
+        
+        response = model.generate_content(prompt)
+        
+        # JSON 파싱을 위해 불필요한 마크다운 제거
+        cleaned_text = response.text.replace("```json", "").replace("```", "").strip()
+        import json
+        data = json.loads(cleaned_text)
+        
+        # Ensure no None values for string fields
+        for field in ['category', 'item', 'store', 'memo']:
+            if data.get(field) is None:
+                data[field] = ""
+                
+        return data
+
+    except Exception as e:
+        print(f"AI 파싱 오류: {e}")
+        return None
