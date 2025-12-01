@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+import django.utils.timezone
 
 class Transaction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='transactions')
@@ -13,6 +14,8 @@ class Transaction(models.Model):
     
     # 확장성 (위치 기반)
     address = models.CharField(max_length=255, blank=True, null=True) # 소비 위치
+    
+    created_at = models.DateTimeField(default=django.utils.timezone.now) # 데이터 생성 시간
 
     def __str__(self):
         return f"{self.user} - {self.item} ({self.amount}원)"

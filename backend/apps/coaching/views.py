@@ -10,6 +10,10 @@ from external.gemini.client import GeminiClient
 User = get_user_model()
 
 class CoachingAdviceView(APIView):
+    """
+    사용자의 코칭 카드 목록을 조회하는 뷰
+    (코칭 생성은 지출 내역 추가 시 자동으로 이루어짐)
+    """
     permission_classes = [AllowAny] # MVP 편의상 AllowAny
 
     def get(self, request):
@@ -22,22 +26,27 @@ class CoachingAdviceView(APIView):
             else:
                 return Response({"error": "No users found in DB. Create a user first."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 최근 10건 조회
-        transactions = Transaction.objects.filter(user=user).order_by('-date')[:10]
-        
-        if not transactions:
-            return Response({"message": "분석할 지출 내역이 없습니다."}, status=status.HTTP_200_OK)
+        from .models import Coaching
 
-        transaction_list_str = ""
-        for t in transactions:
-            transaction_list_str += f"- {t.date.strftime('%Y-%m-%d')} {t.category} / {t.item} ({t.store}) / {t.amount}원\n"
-
-        client = GeminiClient()
-        advice = client.get_advice(transaction_list_str)
+        # 최신순으로 코칭 카드 조회
+        coachings = Coaching.objects.filter(user=user).order_by('-created_at')
         
-        return Response({"message": advice})
+        data = []
+        for c in coachings:
+            data.append({
+                "id": c.id,
+                "subject": c.subject,
+                "analysis": c.analysis,
+                "coaching_content": c.coaching_content,
+                "created_at": c.created_at
+            })
+            
+        return Response(data)
 
 class FeedbackView(APIView):
+    """
+    AI 조언에 대한 사용자의 피드백(좋아요/싫어요)을 저장하는 뷰
+    """
     permission_classes = [AllowAny] # MVP 편의상 AllowAny
 
     def post(self, request):
@@ -56,6 +65,7 @@ class FeedbackView(APIView):
             is_liked = request.data.get('is_liked', True)
             dislike_reason = request.data.get('dislike_reason', '')
 
+            # 피드백 저장
             feedback = CoachingFeedback.objects.create(
                 user=user,
                 is_liked=is_liked,
