@@ -36,3 +36,32 @@ class CoachingAdviceView(APIView):
         advice = client.get_advice(transaction_list_str)
         
         return Response({"message": advice})
+
+class FeedbackView(APIView):
+    permission_classes = [AllowAny] # MVP 편의상 AllowAny
+
+    def post(self, request):
+        # 임시 유저 할당 (로그인 안된 경우 첫 번째 유저 사용) - MVP용
+        user = request.user
+        if not user.is_authenticated:
+            first_user = User.objects.first()
+            if first_user:
+                user = first_user
+            else:
+                return Response({"error": "No users found in DB. Create a user first."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            from .models import CoachingFeedback
+            
+            is_liked = request.data.get('is_liked', True)
+            dislike_reason = request.data.get('dislike_reason', '')
+
+            feedback = CoachingFeedback.objects.create(
+                user=user,
+                is_liked=is_liked,
+                dislike_reason=dislike_reason
+            )
+            
+            return Response({"message": "Feedback saved", "id": feedback.id}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

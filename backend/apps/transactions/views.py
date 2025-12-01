@@ -55,7 +55,11 @@ class CreateTransactionView(APIView):
                 store=data.get('store', ''),
                 amount=data.get('amount', 0),
                 memo=data.get('memo', ''),
-                date=transaction_date
+                date=transaction_date,
+                address=data.get('address', ''),
+                is_impulsive=data.get('is_impulsive', False),
+                is_fixed=data.get('is_fixed', False),
+                ai_feedback=data.get('ai_feedback', '')
             )
 
             return Response({"message": "Transaction created", "id": transaction.id}, status=status.HTTP_201_CREATED)
@@ -89,6 +93,8 @@ class TransactionListView(APIView):
                 "memo": t.memo,
                 "date": t.date,
                 "is_impulsive": t.is_impulsive,
-                "ai_feedback": t.ai_feedback
+                "is_fixed": t.is_fixed,
+                "ai_feedback": t.ai_feedback,
+                "address": t.address
             })
         return Response(data)
