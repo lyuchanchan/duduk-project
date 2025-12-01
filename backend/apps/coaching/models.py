@@ -1,6 +1,19 @@
 from django.db import models
 from django.conf import settings
 
+class Coaching(models.Model):
+    """
+    AI가 생성한 코칭 카드 데이터
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='coachings')
+    subject = models.CharField(max_length=50) # 주제: 행동 변화 제안, 누수 소비, 위치 기반 대안, 키워드 기반 대안
+    analysis = models.TextField() # 소비 분석
+    coaching_content = models.TextField() # 코칭 내용
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.subject} ({self.created_at})"
+
 class CoachingFeedback(models.Model):
     """
     AI 코칭에 대한 사용자의 피드백 (좋아요/싫어요 및 이유)

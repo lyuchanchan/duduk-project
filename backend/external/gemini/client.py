@@ -58,7 +58,7 @@ class GeminiClient:
         Generates financial advice based on transaction history.
         """
         if not self.model:
-            return "API Key가 설정되지 않아 조언을 생성할 수 없습니다."
+            return None
 
         prompt = f"""
         당신은 '두둑' 서비스의 AI 소비 코치입니다.
@@ -67,12 +67,28 @@ class GeminiClient:
         [지출 내역]
         {transaction_list_str}
 
-        이 지출 내역을 기반으로, 사용자의 소비 패턴을 분석하고
-        절약을 위한 '대안 추천'과 '분석 코멘트'를 친근한 말투로 150자 이내로 생성해 주세요.
+        이 지출 내역을 기반으로, 사용자의 소비 패턴을 분석하고 코칭 카드를 생성해 주세요.
+        
+        [생성 규칙]
+        1. 주제는 다음 4가지 중 하나를 선택하세요: "행동 변화 제안", "누수 소비", "위치 기반 대안", "키워드 기반 대안"
+        2. 내용은 소비 내역 분석과 그에 따른 코칭 내용이 포함되어야 합니다.
+        3. 내역 분석 + 코칭 내용은 100자 이내로 작성하세요.
+        4. 반드시 JSON 형식으로 반환하세요.
+
+        [반환 형식]
+        {{
+            "subject": "선택한 주제",
+            "analysis": "소비 분석 내용",
+            "coaching_content": "코칭 내용"
+        }}
+        
+        JSON 외에 다른 말은 하지 마세요.
         """
         
         try:
             response = self.model.generate_content(prompt)
-            return response.text
+            cleaned_text = response.text.replace("```json", "").replace("```", "").strip()
+            return json.loads(cleaned_text)
         except Exception as e:
-            return f"AI 분석 중 오류 발생: {str(e)}"
+            print(f"AI Coaching Error: {e}")
+            return None
