@@ -24,11 +24,24 @@ export default function RecentTransactions() {
     // 카테고리별 아이콘 매핑
     const getIcon = (category) => {
         switch (category) {
-            case '카페': return Coffee;
-            case '식비': return Utensils;
-            case '쇼핑': return ShoppingBag;
-            case '교통': return Bus;
-            case '문화': return Film;
+            case '식비': return Coffee;
+            case '생활': return Utensils;
+            case '카페/간식': return ShoppingBag;
+            case '온라인 쇼핑': return Bus;
+            case '패션/쇼핑': return Film;
+            case '뷰티/미용': return Coffee;
+            case '교통': return Utensils;
+            case '자동차': return ShoppingBag;
+            case '주거/통신': return Bus;
+            case '의료/건강': return Film;
+            case '문화/여가': return Coffee;
+            case '여행/숙박': return Utensils;
+            case '교육': return ShoppingBag;
+            case '육아': return Bus;
+            case '반려동물': return Film;
+            case '경조/선물': return Bus;
+            case '술/유흥': return Film;
+            case '기타': return HelpCircle;
             default: return HelpCircle; // 기본 아이콘
         }
     };

@@ -67,10 +67,7 @@ class CreateTransactionView(APIView):
                 amount=data.get('amount', 0),
                 memo=data.get('memo', ''),
                 date=transaction_date,
-                address=data.get('address', ''),
-                is_impulsive=data.get('is_impulsive', False),
-                is_fixed=data.get('is_fixed', False),
-                ai_feedback=data.get('ai_feedback', '')
+                address=data.get('address', '')
             )
 
             return Response({"message": "Transaction created", "id": transaction.id}, status=status.HTTP_201_CREATED)
@@ -93,8 +90,8 @@ class TransactionListView(APIView):
             else:
                 return Response({"error": "No users found in DB. Create a user first."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 최신순으로 정렬하여 조회
-        transactions = Transaction.objects.filter(user=user).order_by('-date')
+        # 최신순으로 정렬하여 조회 (날짜 같으면 최신 등록순)
+        transactions = Transaction.objects.filter(user=user).order_by('-date', '-id')
         
         # Serializer를 따로 안 만들었으므로 수동 직렬화 (MVP)
         data = []
@@ -107,9 +104,6 @@ class TransactionListView(APIView):
                 "amount": t.amount,
                 "memo": t.memo,
                 "date": t.date,
-                "is_impulsive": t.is_impulsive,
-                "is_fixed": t.is_fixed,
-                "ai_feedback": t.ai_feedback,
                 "address": t.address
             })
         return Response(data)

@@ -10,11 +10,6 @@ class Transaction(models.Model):
     memo = models.CharField(max_length=255, blank=True)
     
     date = models.DateTimeField() # 실제 소비 날짜 (사용자 수정 가능)
-
-    # AI 분석 필드
-    is_impulsive = models.BooleanField(default=False) # 충동구매 여부
-    is_fixed = models.BooleanField(default=False) # 고정 지출 여부 (AI 판단/사용자 수정)
-    ai_feedback = models.TextField(blank=True, null=True) # AI 피드백
     
     # 확장성 (위치 기반)
     address = models.CharField(max_length=255, blank=True, null=True) # 소비 위치
