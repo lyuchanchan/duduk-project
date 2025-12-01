@@ -1,15 +1,48 @@
-"use client";
-
-import { Coffee, ShoppingBag, Bus, Film, Utensils, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Coffee, ShoppingBag, Bus, Film, Utensils, ChevronRight, HelpCircle } from 'lucide-react';
+import { getTransactions } from '../../lib/api/transaction';
 
 export default function RecentTransactions() {
-    const transactions = [
-        { id: 1, name: '스타벅스', date: '4월 15일', amount: -6500, icon: Coffee, color: '#e6fffa', iconColor: '#2f855a' },
-        { id: 2, name: '올리브영', date: '4월 14일', amount: -24000, icon: ShoppingBag, color: '#e6fffa', iconColor: '#2f855a' },
-        { id: 3, name: '티머니 충전', date: '4월 14일', amount: -10000, icon: Bus, color: '#e6fffa', iconColor: '#2f855a' },
-        { id: 4, name: 'CGV', date: '4월 12일', amount: -15000, icon: Film, color: '#e6fffa', iconColor: '#2f855a' },
-        { id: 5, name: '김밥천국', date: '4월 12일', amount: -8000, icon: Utensils, color: '#e6fffa', iconColor: '#2f855a' },
-    ];
+    const [transactions, setTransactions] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                const data = await getTransactions();
+                setTransactions(data);
+            } catch (error) {
+                console.error('Failed to fetch transactions:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, []);
+
+    // 카테고리별 아이콘 매핑
+    const getIcon = (category) => {
+        switch (category) {
+            case '카페': return Coffee;
+            case '식비': return Utensils;
+            case '쇼핑': return ShoppingBag;
+            case '교통': return Bus;
+            case '문화': return Film;
+            default: return HelpCircle; // 기본 아이콘
+        }
+    };
+
+    // 날짜 포맷팅 (예: 2024-11-30 -> 11월 30일)
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+    };
+
+    if (isLoading) {
+        return <div style={{ padding: '2rem', textAlign: 'center' }}>로딩 중...</div>;
+    }
 
     return (
         <div style={{ paddingBottom: '2rem' }}>
@@ -31,39 +64,52 @@ export default function RecentTransactions() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {transactions.map((t) => (
-                    <div key={t.id} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        backgroundColor: 'white',
-                        padding: '1.25rem',
-                        borderRadius: 'var(--radius-md)',
-                        boxShadow: 'var(--shadow-sm)',
-                        transition: 'transform 0.1s ease',
-                        cursor: 'pointer'
-                    }}>
-                        <div style={{
-                            backgroundColor: t.color,
-                            padding: '0.85rem',
-                            borderRadius: '50%',
-                            marginRight: '1.25rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                            <t.icon size={22} color={t.iconColor} strokeWidth={2} />
-                        </div>
-
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--text-main)', marginBottom: '0.25rem' }}>{t.name}</h3>
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', fontWeight: '500' }}>{t.date}</p>
-                        </div>
-
-                        <span style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {t.amount.toLocaleString()}
-                        </span>
+                {transactions.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-sub)' }}>
+                        아직 지출 내역이 없습니다.
                     </div>
-                ))}
+                ) : (
+                    transactions.map((t) => {
+                        const Icon = getIcon(t.category);
+                        return (
+                            <div key={t.id} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                backgroundColor: 'white',
+                                padding: '1.25rem',
+                                borderRadius: 'var(--radius-md)',
+                                boxShadow: 'var(--shadow-sm)',
+                                transition: 'transform 0.1s ease',
+                                cursor: 'pointer'
+                            }}>
+                                <div style={{
+                                    backgroundColor: '#e6fffa', // 임시 고정 색상
+                                    padding: '0.85rem',
+                                    borderRadius: '50%',
+                                    marginRight: '1.25rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    <Icon size={22} color="#2f855a" strokeWidth={2} />
+                                </div>
+
+                                <div style={{ flex: 1 }}>
+                                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+                                        {t.store || t.item || '알 수 없음'}
+                                    </h3>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', fontWeight: '500' }}>
+                                        {formatDate(t.date)} | {t.category}
+                                    </p>
+                                </div>
+
+                                <span style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-main)' }}>
+                                    {t.amount.toLocaleString()}원
+                                </span>
+                            </div>
+                        );
+                    })
+                )}
             </div>
         </div>
     );

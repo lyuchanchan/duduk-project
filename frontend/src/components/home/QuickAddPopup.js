@@ -6,9 +6,9 @@ import QuickAddInput from './QuickAddInput';
 import ReceiptScan from './ReceiptScan';
 import ImageMatching from './ImageMatching';
 import TransactionConfirm from './TransactionConfirm';
-import { parseTransaction } from '../../lib/api/transaction';
+import { parseTransaction, createTransaction } from '../../lib/api/transaction';
 
-export default function QuickAddPopup({ onClose }) {
+export default function QuickAddPopup({ onClose, onTransactionAdded }) {
     const [step, setStep] = useState('input'); // 'input' | 'confirm'
     const [inputText, setInputText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -33,11 +33,19 @@ export default function QuickAddPopup({ onClose }) {
         }
     };
 
-    const handleSave = (finalData) => {
-        console.log('Saving transaction:', finalData);
-        // Here we would call createTransaction(finalData)
-        alert('저장되었습니다!');
-        onClose();
+    const handleSave = async (finalData) => {
+        try {
+            console.log('Saving transaction:', finalData);
+            await createTransaction(finalData);
+            alert('저장되었습니다!');
+            if (onTransactionAdded) {
+                onTransactionAdded();
+            }
+            onClose();
+        } catch (error) {
+            console.error('Failed to save transaction:', error);
+            alert('저장에 실패했습니다.');
+        }
     };
 
     return (

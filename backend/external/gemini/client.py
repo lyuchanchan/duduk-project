@@ -31,7 +31,12 @@ class GeminiClient:
             "item": "품목 (예: 아메리카노, 택시비)",
             "store": "소비처 (예: 스타벅스, 카카오택시)",
             "amount": 금액(숫자만),
-            "memo": "기타 메모"
+            "date": "YYYY-MM-DD 형식의 날짜 (텍스트에 날짜 정보가 없으면 오늘 날짜)",
+            "memo": "기타 메모",
+            "is_impulsive": true/false (충동구매 여부 판단),
+            "is_fixed": true/false (매달 나가는 고정 지출 여부 판단),
+            "ai_feedback": "소비에 대한 짧은 한줄 코멘트 (예: 조금 비싼 편이네요, 잘 아꼈어요)",
+            "address": "추정되는 위치 (없으면 빈 문자열)"
         }}
         
         JSON 외에 다른 말은 하지 마세요.
@@ -43,9 +48,15 @@ class GeminiClient:
             data = json.loads(cleaned_text)
             
             # Ensure no None values for string fields
-            for field in ['category', 'item', 'store', 'memo']:
+            for field in ['category', 'item', 'store', 'memo', 'ai_feedback', 'address', 'date']:
                 if data.get(field) is None:
                     data[field] = ""
+            
+            # Ensure boolean fields
+            for field in ['is_impulsive', 'is_fixed']:
+                if data.get(field) is None:
+                    data[field] = False
+                    
             return data
         except Exception as e:
             print(f"Gemini Analysis Error: {e}")

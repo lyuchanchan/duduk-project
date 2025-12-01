@@ -12,6 +12,10 @@ from external.gemini.client import GeminiClient
 User = get_user_model()
 
 class ParseTransactionView(APIView):
+    """
+    자연어 텍스트를 입력받아 AI(Gemini)를 통해 구조화된 데이터로 변환하는 뷰
+    DB에 저장하지 않고, 분석 결과만 반환합니다.
+    """
     permission_classes = [AllowAny] # MVP 편의상 AllowAny, 실제로는 IsAuthenticated 권장
 
     def post(self, request):
@@ -19,6 +23,7 @@ class ParseTransactionView(APIView):
         if not text:
             return Response({"error": "No text provided"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Gemini AI 클라이언트를 사용하여 텍스트 분석
         client = GeminiClient()
         parsed_data = client.analyze_text(text)
         
@@ -28,6 +33,9 @@ class ParseTransactionView(APIView):
         return Response(parsed_data)
 
 class CreateTransactionView(APIView):
+    """
+    분석된(또는 사용자가 입력한) 데이터를 받아 실제 DB에 지출 내역을 저장하는 뷰
+    """
     permission_classes = [AllowAny] # MVP 편의상 AllowAny
 
     def post(self, request):
@@ -45,9 +53,12 @@ class CreateTransactionView(APIView):
         try:
             from django.utils import timezone
             transaction_date = data.get('date')
+            
+            # 날짜가 없으면 현재 시간으로 설정
             if not transaction_date:
                 transaction_date = timezone.now()
 
+            # DB에 Transaction 객체 생성 및 저장
             transaction = Transaction.objects.create(
                 user=user,
                 category=data.get('category', '기타'),
@@ -67,6 +78,9 @@ class CreateTransactionView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class TransactionListView(APIView):
+    """
+    사용자의 지출 내역 목록을 조회하는 뷰
+    """
     permission_classes = [AllowAny] # MVP 편의상 AllowAny
 
     def get(self, request):
@@ -79,6 +93,7 @@ class TransactionListView(APIView):
             else:
                 return Response({"error": "No users found in DB. Create a user first."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # 최신순으로 정렬하여 조회
         transactions = Transaction.objects.filter(user=user).order_by('-date')
         
         # Serializer를 따로 안 만들었으므로 수동 직렬화 (MVP)

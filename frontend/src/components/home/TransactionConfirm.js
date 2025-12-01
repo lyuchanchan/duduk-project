@@ -11,7 +11,8 @@ export default function TransactionConfirm({ initialData, onSave }) {
   const [category, setCategory] = useState(initialData?.category || '기타');
   const [item, setItem] = useState(initialData?.item || '');
   const [store, setStore] = useState(initialData?.store || '');
-  const [date, setDate] = useState(initialData?.date ? new Date(initialData.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }));
+  const [rawDate, setRawDate] = useState(initialData?.date ? new Date(initialData.date) : new Date());
+  const dateDisplay = rawDate.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
     <div style={{ paddingBottom: '1rem' }}>
@@ -157,7 +158,7 @@ export default function TransactionConfirm({ initialData, onSave }) {
             <div style={{ backgroundColor: '#c6f6d5', padding: '0.5rem', borderRadius: '8px' }}>
               <Calendar size={20} color="var(--primary)" />
             </div>
-            <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-main)' }}>{date}</span>
+            <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-main)' }}>{dateDisplay}</span>
           </div>
           <ChevronRight size={20} color="var(--text-sub)" />
         </div>
@@ -194,7 +195,7 @@ export default function TransactionConfirm({ initialData, onSave }) {
 
       {/* Save Button */}
       <button
-        onClick={() => onSave({ amount, category, item, store, date, isRecurring })}
+        onClick={() => onSave({ amount, category, item, store, date: rawDate.toISOString(), isRecurring })}
         style={{
           width: '100%',
           padding: '1rem',

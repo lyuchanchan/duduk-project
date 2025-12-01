@@ -11,6 +11,11 @@ import { Plus } from 'lucide-react';
 
 export default function Home() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleTransactionAdded = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--background-light)', position: 'relative' }}>
@@ -20,11 +25,16 @@ export default function Home() {
         <ChallengeList />
         <TotalSpending />
         <CategorySpending />
-        <RecentTransactions />
+        <RecentTransactions key={refreshKey} />
       </main>
 
       {/* Quick Add Popup */}
-      {isPopupOpen && <QuickAddPopup onClose={() => setIsPopupOpen(false)} />}
+      {isPopupOpen && (
+        <QuickAddPopup
+          onClose={() => setIsPopupOpen(false)}
+          onTransactionAdded={handleTransactionAdded}
+        />
+      )}
 
       {/* Floating Action Button */}
       {!isPopupOpen && (
