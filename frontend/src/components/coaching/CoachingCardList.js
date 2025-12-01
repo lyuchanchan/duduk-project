@@ -1,46 +1,54 @@
 "use client";
 
-import { useState } from 'react';
-import { ShoppingBag, Coffee, ChevronRight, MapPin, Droplets, Zap, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShoppingBag, Coffee, ChevronRight, MapPin, Droplets, Zap, ThumbsUp, ThumbsDown, Lightbulb } from 'lucide-react';
 import DislikeReasonPopup from './DislikeReasonPopup';
-
-const cards = [
-    {
-        id: 1,
-        icon: <ShoppingBag size={20} color="#2f855a" />,
-        tag: "키워드 기반 대안",
-        title: "온라인 쇼핑몰 할인 활용",
-        description: "Find the best deals for your favorite online stores...",
-    },
-    {
-        id: 2,
-        icon: <MapPin size={20} color="#2f855a" />,
-        tag: "위치 기반",
-        title: "근처 마트 할인 정보",
-        description: "Check out the latest discounts at local supermarkets...",
-    },
-    {
-        id: 3,
-        icon: <Droplets size={20} color="#2f855a" />,
-        tag: "누수 소비",
-        title: "불필요한 구독 취소",
-        description: "Identify and cancel subscriptions you no longer use...",
-    },
-    {
-        id: 4,
-        icon: <Zap size={20} color="#2f855a" />,
-        tag: "행동 변화 제안",
-        title: "일주일 무지출 챌린지",
-        description: "Challenge yourself to spend nothing for a week...",
-    }
-];
+import CoachingDetailPopup from './CoachingDetailPopup';
+import { getCoachingAdvice, submitFeedback } from '@/lib/api/coaching';
 
 export default function CoachingCardList() {
+    const [cards, setCards] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [likedCards, setLikedCards] = useState(new Set());
     const [dislikedCards, setDislikedCards] = useState(new Set());
     const [showDislikePopup, setShowDislikePopup] = useState(null); // Stores card ID
+    const [selectedCard, setSelectedCard] = useState(null); // For detail popup
 
-    const handleLike = (id) => {
+    useEffect(() => {
+        const fetchCoaching = async () => {
+            try {
+                const data = await getCoachingAdvice();
+                // Map backend data to frontend format
+                const mappedCards = data.map(item => ({
+                    id: item.id,
+                    tag: item.subject,
+                    title: item.title,
+                    analysis: item.analysis,
+                    description: item.coaching_content,
+                    icon: getIconForSubject(item.subject)
+                }));
+                setCards(mappedCards);
+            } catch (error) {
+                console.error("Failed to fetch coaching:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCoaching();
+    }, []);
+
+    const getIconForSubject = (subject) => {
+        switch (subject) {
+            case "행동 변화 제안": return <Zap size={20} color="#2f855a" />;
+            case "누수 소비": return <Droplets size={20} color="#2f855a" />;
+            case "위치 기반 대안": return <MapPin size={20} color="#2f855a" />;
+            case "키워드 기반 대안": return <ShoppingBag size={20} color="#2f855a" />;
+            default: return <Lightbulb size={20} color="#2f855a" />;
+        }
+    };
+
+    const handleLike = async (id) => {
         setLikedCards(prev => {
             const newSet = new Set(prev);
             if (newSet.has(id)) {
@@ -56,6 +64,13 @@ export default function CoachingCardList() {
             }
             return newSet;
         });
+
+        // Send to backend
+        try {
+            await submitFeedback(true);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     const handleDislikeClick = (id) => {
@@ -72,7 +87,7 @@ export default function CoachingCardList() {
         }
     };
 
-    const handleDislikeSubmit = (reason) => {
+    const handleDislikeSubmit = async (reason) => {
         if (showDislikePopup) {
             console.log(`Disliked card ${showDislikePopup} reason: ${reason}`);
             setDislikedCards(prev => {
@@ -86,9 +101,30 @@ export default function CoachingCardList() {
                 newLikes.delete(showDislikePopup);
                 return newLikes;
             });
+
+            // Send to backend
+            try {
+                await submitFeedback(false, reason);
+            } catch (e) {
+                console.error(e);
+            }
+
             setShowDislikePopup(null);
         }
     };
+
+    if (loading) {
+        return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading coaching...</div>;
+    }
+
+    if (cards.length === 0) {
+        return (
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-sub)' }}>
+                <p>아직 생성된 코칭 카드가 없습니다.</p>
+                <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>지출 내역이 쌓이면 AI가 분석해드릴게요!</p>
+            </div>
+        );
+    }
 
     return (
         <div style={{ marginBottom: '2rem' }}>
@@ -200,10 +236,33 @@ export default function CoachingCardList() {
                                 <p style={{
                                     color: 'var(--text-sub)',
                                     fontSize: '0.95rem',
-                                    lineHeight: '1.5'
+                                    lineHeight: '1.5',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden'
                                 }}>
-                                    {card.description}
+                                    {card.analysis}
                                 </p>
+                                <button
+                                    onClick={() => setSelectedCard(card)}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: '1.5rem',
+                                        right: '1.5rem',
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#2f855a',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    더보기 <ChevronRight size={16} />
+                                </button>
                             </div>
                         </div>
                     );
@@ -214,6 +273,14 @@ export default function CoachingCardList() {
                 <DislikeReasonPopup
                     onClose={() => setShowDislikePopup(null)}
                     onSubmit={handleDislikeSubmit}
+                />
+            )}
+
+            {selectedCard && (
+                <CoachingDetailPopup
+                    isOpen={!!selectedCard}
+                    onClose={() => setSelectedCard(null)}
+                    data={selectedCard}
                 />
             )}
         </div>

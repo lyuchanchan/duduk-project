@@ -36,6 +36,7 @@ class CoachingAdviceView(APIView):
             data.append({
                 "id": c.id,
                 "subject": c.subject,
+                "title": c.title,
                 "analysis": c.analysis,
                 "coaching_content": c.coaching_content,
                 "created_at": c.created_at
