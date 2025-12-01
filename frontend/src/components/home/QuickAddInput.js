@@ -1,60 +1,38 @@
 "use client";
 
-import { useState } from 'react';
-import { parseTransaction, createTransaction } from '@/lib/api/transaction';
+import { Sparkles } from 'lucide-react';
 
-export default function QuickAddInput() {
-    const [text, setText] = useState('');
-    const [parsedData, setParsedData] = useState(null);
-    const [message, setMessage] = useState('');
-
-    const handleParse = async () => {
-        try {
-            setMessage('Parsing...');
-            const data = await parseTransaction(text);
-            setParsedData(data);
-            setMessage('Parsed successfully. Please confirm.');
-        } catch (error) {
-            setMessage('Error parsing transaction.');
-        }
-    };
-
-    const handleCreate = async () => {
-        try {
-            setMessage('Saving...');
-            await createTransaction(parsedData);
-            setMessage('Transaction Created!');
-            setParsedData(null);
-            setText('');
-        } catch (error) {
-            setMessage('Error creating transaction.');
-        }
-    };
-
+export default function QuickAddInput({ value, onChange }) {
     return (
-        <div style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem' }}>
-            <h3>Quick Add</h3>
-            <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="예: 스타벅스 5000원"
-                style={{ marginRight: '0.5rem', padding: '0.5rem' }}
-            />
-            <button onClick={handleParse} style={{ padding: '0.5rem' }}>
-                전송
-            </button>
-
-            {message && <p>{message}</p>}
-
-            {parsedData && (
-                <div style={{ marginTop: '1rem', background: '#f0f0f0', padding: '1rem' }}>
-                    <pre>{JSON.stringify(parsedData, null, 2)}</pre>
-                    <button onClick={handleCreate} style={{ marginTop: '0.5rem', padding: '0.5rem' }}>
-                        확인 (저장)
-                    </button>
-                </div>
-            )}
+        <div style={{ marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-main)' }}>자연어 입력</h3>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: 'var(--card-bg)',
+                borderRadius: '16px',
+                padding: '1rem',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)', // Stronger shadow
+                border: '2px solid var(--primary)', // Highlight border
+                transition: 'all 0.2s ease'
+            }}>
+                <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder="예: 강남 스타벅스 4500원"
+                    style={{
+                        flex: 1,
+                        border: 'none',
+                        outline: 'none',
+                        fontSize: '1.1rem',
+                        color: 'var(--text-main)',
+                        backgroundColor: 'transparent',
+                        fontWeight: '500'
+                    }}
+                />
+                <Sparkles size={20} color="#FFD700" style={{ marginLeft: '0.5rem' }} />
+            </div>
         </div>
     );
 }
