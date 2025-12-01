@@ -1,6 +1,8 @@
 "use client";
 
-import { ShoppingBag, Coffee, ChevronRight, MapPin, Droplets, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingBag, Coffee, ChevronRight, MapPin, Droplets, Zap, ThumbsUp, ThumbsDown } from 'lucide-react';
+import DislikeReasonPopup from './DislikeReasonPopup';
 
 const cards = [
     {
@@ -34,6 +36,60 @@ const cards = [
 ];
 
 export default function CoachingCardList() {
+    const [likedCards, setLikedCards] = useState(new Set());
+    const [dislikedCards, setDislikedCards] = useState(new Set());
+    const [showDislikePopup, setShowDislikePopup] = useState(null); // Stores card ID
+
+    const handleLike = (id) => {
+        setLikedCards(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+                // Remove from dislikes if present
+                setDislikedCards(d => {
+                    const newDislikes = new Set(d);
+                    newDislikes.delete(id);
+                    return newDislikes;
+                });
+            }
+            return newSet;
+        });
+    };
+
+    const handleDislikeClick = (id) => {
+        if (dislikedCards.has(id)) {
+            // Toggle off
+            setDislikedCards(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(id);
+                return newSet;
+            });
+        } else {
+            // Open popup
+            setShowDislikePopup(id);
+        }
+    };
+
+    const handleDislikeSubmit = (reason) => {
+        if (showDislikePopup) {
+            console.log(`Disliked card ${showDislikePopup} reason: ${reason}`);
+            setDislikedCards(prev => {
+                const newSet = new Set(prev);
+                newSet.add(showDislikePopup);
+                return newSet;
+            });
+            // Remove from likes if present
+            setLikedCards(l => {
+                const newLikes = new Set(l);
+                newLikes.delete(showDislikePopup);
+                return newLikes;
+            });
+            setShowDislikePopup(null);
+        }
+    };
+
     return (
         <div style={{ marginBottom: '2rem' }}>
             <h3 style={{
@@ -59,57 +115,107 @@ export default function CoachingCardList() {
                         display: none;
                     }
                 `}</style>
-                {cards.map((card) => (
-                    <div key={card.id} style={{
-                        minWidth: '280px',
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: 'var(--radius-lg)',
-                        padding: '1.5rem',
-                        boxShadow: 'var(--shadow-md)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        height: '320px'
-                    }}>
-                        <div>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                {card.icon}
-                                <span style={{
-                                    marginLeft: '0.5rem',
-                                    backgroundColor: '#e6fffa',
-                                    color: '#2f855a',
-                                    padding: '0.25rem 0.75rem',
-                                    borderRadius: '999px',
-                                    fontSize: '0.8rem',
-                                    fontWeight: '600'
+                {cards.map((card) => {
+                    const isLiked = likedCards.has(card.id);
+                    const isDisliked = dislikedCards.has(card.id);
+
+                    return (
+                        <div key={card.id} style={{
+                            minWidth: '280px',
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: 'var(--radius-lg)',
+                            padding: '1.5rem',
+                            boxShadow: 'var(--shadow-md)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            height: '320px',
+                            position: 'relative'
+                        }}>
+                            <div>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '1rem'
                                 }}>
-                                    {card.tag}
-                                </span>
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        {card.icon}
+                                        <span style={{
+                                            marginLeft: '0.5rem',
+                                            backgroundColor: '#e6fffa',
+                                            color: '#2f855a',
+                                            padding: '0.25rem 0.75rem',
+                                            borderRadius: '999px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: '600'
+                                        }}>
+                                            {card.tag}
+                                        </span>
+                                    </div>
+
+                                    {/* Feedback Buttons */}
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => handleLike(card.id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                padding: '4px',
+                                                color: isLiked ? 'var(--primary)' : 'var(--text-sub)'
+                                            }}
+                                        >
+                                            <ThumbsUp
+                                                size={20}
+                                                fill={isLiked ? 'currentColor' : 'none'}
+                                            />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDislikeClick(card.id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                padding: '4px',
+                                                color: isDisliked ? 'var(--primary)' : 'var(--text-sub)'
+                                            }}
+                                        >
+                                            <ThumbsDown
+                                                size={20}
+                                                fill={isDisliked ? 'currentColor' : 'none'}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                                <h4 style={{
+                                    fontSize: '1.2rem',
+                                    fontWeight: 'bold',
+                                    marginBottom: '1rem',
+                                    color: 'var(--text-main)',
+                                    lineHeight: '1.4'
+                                }}>
+                                    {card.title}
+                                </h4>
+                                <p style={{
+                                    color: 'var(--text-sub)',
+                                    fontSize: '0.95rem',
+                                    lineHeight: '1.5'
+                                }}>
+                                    {card.description}
+                                </p>
                             </div>
-                            <h4 style={{
-                                fontSize: '1.2rem',
-                                fontWeight: 'bold',
-                                marginBottom: '1rem',
-                                color: 'var(--text-main)',
-                                lineHeight: '1.4'
-                            }}>
-                                {card.title}
-                            </h4>
-                            <p style={{
-                                color: 'var(--text-sub)',
-                                fontSize: '0.95rem',
-                                lineHeight: '1.5'
-                            }}>
-                                {card.description}
-                            </p>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
+
+            {showDislikePopup && (
+                <DislikeReasonPopup
+                    onClose={() => setShowDislikePopup(null)}
+                    onSubmit={handleDislikeSubmit}
+                />
+            )}
         </div>
     );
 }
