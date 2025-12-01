@@ -11,6 +11,7 @@ class Transaction(models.Model):
     memo = models.CharField(max_length=255, blank=True)
     
     date = models.DateTimeField() # 실제 소비 날짜 (사용자 수정 가능)
+    is_fixed = models.BooleanField(default=False) # 고정 지출 여부 (예: 구독, 월세). 만약 사용자가 변경하면, 다음부터는 관련 지출은 변경에 따라 기본 설정으로 적용
     
     # 확장성 (위치 기반)
     address = models.CharField(max_length=255, blank=True, null=True) # 소비 위치

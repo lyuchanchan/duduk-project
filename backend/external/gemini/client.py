@@ -33,7 +33,8 @@ class GeminiClient:
             "amount": 금액(숫자만),
             "date": "YYYY-MM-DD 형식의 날짜 (텍스트에 날짜 정보가 없으면 오늘 날짜)",
             "memo": "기타 메모",
-            "address": "추정되는 위치 (없으면 빈 문자열)"
+            "address": "추정되는 위치 (없으면 빈 문자열)",
+            "is_fixed": true/false (고정 지출 여부: 구독료, 월세, 보험료 등 매달 나가는 돈이면 true)
         }}
         
         JSON 외에 다른 말은 하지 마세요.
@@ -47,7 +48,12 @@ class GeminiClient:
             # Ensure no None values for string fields
             for field in ['category', 'item', 'store', 'memo', 'address', 'date']:
                 if data.get(field) is None:
-                    data[field] = ""         
+                    data[field] = ""
+            
+            # Ensure is_fixed is boolean
+            if 'is_fixed' not in data:
+                data['is_fixed'] = False
+                
             return data
         except Exception as e:
             print(f"Gemini Analysis Error: {e}")

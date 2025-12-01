@@ -67,7 +67,8 @@ class CreateTransactionView(APIView):
                 amount=data.get('amount', 0),
                 memo=data.get('memo', ''),
                 date=transaction_date,
-                address=data.get('address', '')
+                address=data.get('address', ''),
+                is_fixed=data.get('is_fixed', False)
             )
 
             return Response({"message": "Transaction created", "id": transaction.id}, status=status.HTTP_201_CREATED)
@@ -104,6 +105,7 @@ class TransactionListView(APIView):
                 "amount": t.amount,
                 "memo": t.memo,
                 "date": t.date,
-                "address": t.address
+                "address": t.address,
+                "is_fixed": t.is_fixed
             })
         return Response(data)
