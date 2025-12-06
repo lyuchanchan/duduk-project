@@ -110,7 +110,7 @@ export default function TransactionConfirm({ initialData, onSave }) {
             <Search size={18} color="var(--text-sub)" />
             <input
               type="text"
-              defaultValue={store ? `${store} 서울역점` : ''}
+              defaultValue={store ? `${store}` : ''}
               style={{ width: '100%', border: 'none', outline: 'none', fontSize: '1rem', color: 'var(--text-main)', background: 'transparent' }}
             />
           </div>
